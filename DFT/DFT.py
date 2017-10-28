@@ -12,17 +12,18 @@ class DFT:
         matrix: a 2d matrix
         returns a complex matrix representing fourier transform"""
         #print(matrix[0,0]);
-        N = 15
+        N = matrix.shape
+        #print(N[0])
         outp = 0
         #medium = 0
-        output = np.zeros((15,15),dtype=np.complex)
+        output = np.zeros((N[0],N[1]),dtype=np.complex)
         #print(output)
-        for u in range(0,N):
-            for v in range(0,N):
+        for u in range(0,N[0]):
+            for v in range(0,N[1]):
                outp = 0
-               for k in range(0,N):
-                  for l in range(0,N):
-                    a = ((2 * math.pi)/N) * ((u * k)+(v * l))
+               for k in range(0,N[0]):
+                  for l in range(0,N[1]):
+                    a = ((2 * math.pi)/N[0]) * ((u * k)+(v * l))
                     cosval = math.cos(a)
                     sinval = math.sin(a)
                     # print(1j*sinval)
@@ -40,17 +41,17 @@ class DFT:
         matrix: a 2d matrix (DFT) usually complex
         takes as input:
         returns a complex matrix representing the inverse fourier transform"""
-        N = 15
+        N = matrix.shape
         outp = 0
         # medium = 0
-        output = np.zeros((15, 15), dtype=np.complex)
+        output = np.zeros((N[0], N[1]), dtype=np.complex)
         # print(output)
-        for u in range(0, N):
-            for v in range(0, N):
+        for u in range(0, N[0]):
+            for v in range(0, N[1]):
                 outp = 0
-                for k in range(0, N):
-                    for l in range(0, N):
-                        a = ((2 * math.pi) / N) * ((u * k) + (v * l))
+                for k in range(0, N[0]):
+                    for l in range(0, N[1]):
+                        a = ((2 * math.pi) / N[0]) * ((u * k) + (v * l))
                         cosval = math.cos(a)
                         sinval = math.sin(a)
                         # print(1j*sinval)
@@ -66,17 +67,17 @@ class DFT:
         takes as input:
         matrix: a 2d matrix
         returns a matrix representing discrete cosine transform"""
-        N = 15
+        N = matrix.shape
         outp = 0
         # medium = 0
-        output = np.zeros((15, 15), dtype=np.uint8)
+        output = np.zeros((N[0], N[1]), dtype=np.uint8)
         # print(output)
-        for u in range(0, N):
-            for v in range(0, N):
+        for u in range(0, N[0]):
+            for v in range(0, N[1]):
                 outp = 0
-                for k in range(0, N):
-                    for l in range(0, N):
-                        a = ((2 * math.pi) / N) * ((u * k) + (v * l))
+                for k in range(0, N[0]):
+                    for l in range(0, N[1]):
+                        a = ((2 * math.pi) / N[0]) * ((u * k) + (v * l))
                         cosval = math.cos(a)
 
                         # print(1j*sinval)
@@ -93,26 +94,26 @@ class DFT:
         takes as input:
         matrix: a 2d matrix
         returns a matrix representing magnitude of the dft"""
-        N = 15
+        N = matrix.shape
         outp = 0
-        magnitude = np.zeros((15, 15), np.uint8)
+        magnitude = np.zeros((N[0], N[1]), np.uint8)
         # medium = 0
-        output = np.zeros((15, 15), dtype=np.complex)
+        output = np.zeros((N[0], N[1]), dtype=np.complex)
         # print(output)
-        for u in range(0, N):
-            for v in range(0, N):
+        for u in range(0, N[0]):
+            for v in range(0, N[1]):
                 outp = 0
-                for k in range(0, N):
-                    for l in range(0, N):
-                        a = ((2 * math.pi) / N) * ((u * k) + (v * l))
+                for k in range(0, N[0]):
+                    for l in range(0, N[1]):
+                        a = ((2 * math.pi) / N[0]) * ((u * k) + (v * l))
                         cosval = math.cos(a)
                         sinval = math.sin(a)
                         # print(1j*sinval)
                         # medium = medium + matrix[k,l] * (cosval - (1j*sinval))
                         outp = outp + (matrix[k, l] * (cosval - (1j * sinval)))
                         output[u, v] = outp
-        for p in range(0,N):
-            for q in range(0,N):
+        for p in range(0,N[0]):
+            for q in range(0,N[1]):
                 magnitude[p,q] = abs(output[p,q])
 
         #print(magnitude)
