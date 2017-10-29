@@ -1,7 +1,11 @@
 # For this part of the assignment, You can use inbuilt functions to compute the fourier transform
 # You are welcome to use fft that are available in numpy and opencv
-
-
+import cv2
+import numpy as np
+import math
+import cmath
+import sys
+import matplotlib.pyplot as plt
 class Filtering:
     image = None
     filter = None
@@ -40,7 +44,7 @@ class Filtering:
         shape: the shape of the mask to be generated
         cutoff: the cutoff frequency of the ideal filter
         returns a ideal low pass mask"""
-
+         
 
         return 0
 
@@ -136,6 +140,28 @@ class Filtering:
         Note: You do not have to do zero padding as discussed in class, the inbuilt functions takes care of that
         filtered image, magnitude of DFT, magnitude of filtered DFT: Make sure all images being returned have grey scale full contrast stretch and dtype=uint8 
         """
+        input = self.image
+        k = input.shape
+        img_fft = np.fft.fft2(input)
+        #print(img_fft)
+        shift = np.fft.fftshift(img_fft)
+        #print(shift)
+        magnitude = np.zeros((k[0], k[1]),dtype = np.float)
+        dft_log = np.zeros((k[0], k[1]),dtype = np.uint8)
+        magnitude = abs(shift)
+        #print(magnitude)
+        dft_log = np.log(1+magnitude)
+        coeff = (255) / (dft_log.max() - (dft_log.min()))
+        coeff1 = dft_log - (dft_log.min())
+        #print(coeff1)
+        cont_stret = coeff * coeff1
+        #print(cont_stret)
+        plt.imshow(cont_stret,cmap='gray')
+        #plt.imshow(dft_log,cmap="gray")
+        plt.show()
+
+
+
 
 
 

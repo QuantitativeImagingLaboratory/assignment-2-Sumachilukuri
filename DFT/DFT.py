@@ -46,6 +46,7 @@ class DFT:
         # medium = 0
         output = np.zeros((N[0], N[1]), dtype=np.complex)
         # print(output)
+
         for u in range(0, N[0]):
             for v in range(0, N[1]):
                 outp = 0
@@ -58,6 +59,7 @@ class DFT:
                         # medium = medium + matrix[k,l] * (cosval - (1j*sinval))
                         outp = outp + (matrix[k, l] * (cosval + (1j * sinval)))
                         output[u, v] = outp
+        #print("hello",np.fft.ifft2(matrix))
 
         return output
 
@@ -70,7 +72,7 @@ class DFT:
         N = matrix.shape
         outp = 0
         # medium = 0
-        output = np.zeros((N[0], N[1]), dtype=np.uint8)
+        output = np.zeros((N[0], N[1]), dtype=np.complex)
         # print(output)
         for u in range(0, N[0]):
             for v in range(0, N[1]):
@@ -96,7 +98,7 @@ class DFT:
         returns a matrix representing magnitude of the dft"""
         N = matrix.shape
         outp = 0
-        magnitude = np.zeros((N[0], N[1]), np.uint8)
+        magnitude = np.zeros((N[0], N[1]), np.float)
         # medium = 0
         output = np.zeros((N[0], N[1]), dtype=np.complex)
         # print(output)
@@ -112,9 +114,8 @@ class DFT:
                         # medium = medium + matrix[k,l] * (cosval - (1j*sinval))
                         outp = outp + (matrix[k, l] * (cosval - (1j * sinval)))
                         output[u, v] = outp
-        for p in range(0,N[0]):
-            for q in range(0,N[1]):
-                magnitude[p,q] = abs(output[p,q])
+
+                magnitude = abs(output)
 
         #print(magnitude)
 
