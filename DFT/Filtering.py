@@ -115,12 +115,21 @@ class Filtering:
         c = shape[1]
         r = shape[0]
         call = self.shift
-        mask = np.zeros((r, c), np.uint8)
+        mask = np.zeros((r, c))
         for u in range(r):
             for v in range(c):
                 value = ((u - (r / 2)) ** 2 + (v - (c / 2)) ** 2) ** (1 / 2)
                 mask[u, v] = 1 / (math.exp(value ** 2 / (2 * (cutoff ** 2))))
-        
+
+        #print("mask",mask)
+        #for u in range(r):
+            #for v in range(c):
+                #if(mask[u,v]!=0):
+                    #print(u)
+                    #print(v)
+                    #print("hello")
+
+
         return mask
 
     def get_gaussian_high_pass_filter(self, shape, cutoff):
@@ -145,7 +154,6 @@ class Filtering:
         1. Full contrast stretch (fsimage)
         2. take negative (255 - fsimage)
         """
-
 
         return image
 
@@ -185,8 +193,8 @@ class Filtering:
         #print(coeff1)
         cont_stret = coeff * coeff1
         #print(cont_stret)
-        #plt.imshow(cont_stret,cmap='gray')
-        #plt.show()
+        plt.imshow(cont_stret,cmap='gray')
+        plt.show()
         if (self.filter == self.get_ideal_low_pass_filter):
             mask = self.get_ideal_low_pass_filter(self.shift.shape, self.cutoff)
         elif (self.filter == self.get_ideal_high_pass_filter):
@@ -202,24 +210,31 @@ class Filtering:
         else:
             print("Give a valid filter")
         mask_shift = mask*self.shift
+
         msize = mask_shift.shape
         mask_abs = np.zeros((msize[0], msize[1]), np.uint8)
         mask_abs = np.log(1 + abs(mask_shift))
-        maskcoeff = (255) / (mask_abs.max() - (mask_abs.min()))
+        #mask_abs = abs(mask_shift)
+        maskcoeff = (255) / (mask_abs.max() - mask_abs.min())
         maskcoeff1 = mask_abs - (mask_abs.min())
         mask_strech = maskcoeff * maskcoeff1
-        #plt.imshow(mask_strech, cmap="gray")
-        #plt.show()
-        mask_inverse = np.zeros((msize[0], msize[1]), dtype=np.uint8)
+        plt.imshow(mask_strech, cmap="gray")
+        plt.show()
+        #mask_inverse = np.zeros((msize[0], msize[1]), dtype=np.complex)
         mask_inverse = np.fft.ifft2(np.fft.ifftshift(mask_shift))
+
         mask_invabs = np.zeros((msize[0], msize[1]), dtype=np.uint8)
-        mask_invabs = np.log(1 + abs(mask_inverse))
+        #mask_invabs = np.log(1 + abs(mask_inverse))
+        mask_invabs = abs(mask_inverse)
         #print(mask_invabs)
+        #mask_invstrech1 = np.zeros((msize[0], msize[1]), dtype=np.uint8)
+        mask_invstrech = np.zeros((msize[0], msize[1]), dtype=np.float)
         maskinv_coeff = (255) / (mask_invabs.max() - mask_invabs.min())
         maskinv_coeff1 = mask_invabs - (mask_invabs.min())
-        mask_invstrech =  maskinv_coeff * maskinv_coeff1
+        mask_invstrech = maskinv_coeff * maskinv_coeff1
+        #mask_invstrech1 = mask_invstrech
         #print(mask_invstrech)
-        #plt.imshow(mask_invstrech, cmap="gray")
-        #plt.show()
+        plt.imshow(mask_invstrech, cmap="gray")
+        plt.show()
 
         return [cont_stret, mask_strech, mask_invstrech]
