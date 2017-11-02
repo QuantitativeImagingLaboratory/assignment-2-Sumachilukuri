@@ -185,8 +185,8 @@ class Filtering:
         #print(coeff1)
         cont_stret = coeff * coeff1
         #print(cont_stret)
-        plt.imshow(cont_stret,cmap='gray')
-        plt.show()
+        #plt.imshow(cont_stret,cmap='gray')
+        #plt.show()
         if (self.filter == self.get_ideal_low_pass_filter):
             mask = self.get_ideal_low_pass_filter(self.shift.shape, self.cutoff)
         elif (self.filter == self.get_ideal_high_pass_filter):
@@ -208,8 +208,8 @@ class Filtering:
         maskcoeff = (255) / (mask_abs.max() - (mask_abs.min()))
         maskcoeff1 = mask_abs - (mask_abs.min())
         mask_strech = maskcoeff * maskcoeff1
-        plt.imshow(mask_strech, cmap="gray")
-        plt.show()
+        #plt.imshow(mask_strech, cmap="gray")
+        #plt.show()
         mask_inverse = np.zeros((msize[0], msize[1]), dtype=np.uint8)
         mask_inverse = np.fft.ifft2(np.fft.ifftshift(mask_shift))
         mask_invabs = np.zeros((msize[0], msize[1]), dtype=np.uint8)
@@ -219,7 +219,7 @@ class Filtering:
         maskinv_coeff1 = mask_invabs - (mask_invabs.min())
         mask_invstrech =  maskinv_coeff * maskinv_coeff1
         #print(mask_invstrech)
-        plt.imshow(mask_invstrech, cmap="gray")
-        plt.show()
+        #plt.imshow(mask_invstrech, cmap="gray")
+        #plt.show()
 
         return [cont_stret, mask_strech, mask_invstrech]
