@@ -44,9 +44,19 @@ class Filtering:
         shape: the shape of the mask to be generated
         cutoff: the cutoff frequency of the ideal filter
         returns a ideal low pass mask"""
-         
+        c = shape[1]
+        r = shape[0]
+        call = self.shift
+        mask = np.zeros((r, c), np.uint8)
+        for u in range(r):
+            for v in range(c):
+                value = ((u - (r/2)) ** 2 + (v - (c/2)) ** 2) ** (1 / 2)
+                if (value <= cutoff):
+                    mask[u, v] = 1
+                else:
+                    mask[u, v] = 0
 
-        return 0
+        return mask
 
 
     def get_ideal_high_pass_filter(self, shape, cutoff):
@@ -57,9 +67,10 @@ class Filtering:
         returns a ideal high pass mask"""
 
         #Hint: May be one can use the low pass filter function to get a high pass mask
+        il_mask = self.get_ideal_low_pass_filter(shape, cutoff)
+        mask = 1 - il_mask
 
-        
-        return 0
+        return mask
 
     def get_butterworth_low_pass_filter(self, shape, cutoff, order):
         """Computes a butterworth low pass mask
@@ -68,9 +79,18 @@ class Filtering:
         cutoff: the cutoff frequency of the butterworth filter
         order: the order of the butterworth filter
         returns a butterworth low pass mask"""
+        c = shape[1]
+        r = shape[0]
+        n = 2*self.order
+        #print(n)
+        call = self.shift
+        mask = np.zeros((r, c), np.uint8)
+        for u in range(r):
+            for v in range(c):
+                value = ((u - (r / 2)) ** 2 + (v - (c / 2)) ** 2) ** (1 / 2)
+                mask[u, v] = 1/(1+((value/cutoff)**(n)))
 
-        
-        return 0
+        return mask
 
     def get_butterworth_high_pass_filter(self, shape, cutoff, order):
         """Computes a butterworth high pass mask
@@ -81,9 +101,10 @@ class Filtering:
         returns a butterworth high pass mask"""
 
         #Hint: May be one can use the low pass filter function to get a high pass mask
-
+        bl_mask = self.get_ideal_low_pass_filter(shape, cutoff)
+        mask = 1 - bl_mask
         
-        return 0
+        return mask
 
     def get_gaussian_low_pass_filter(self, shape, cutoff):
         """Computes a gaussian low pass mask
@@ -91,9 +112,16 @@ class Filtering:
         shape: the shape of the mask to be generated
         cutoff: the cutoff frequency of the gaussian filter (sigma)
         returns a gaussian low pass mask"""
-
+        c = shape[1]
+        r = shape[0]
+        call = self.shift
+        mask = np.zeros((r, c), np.uint8)
+        for u in range(r):
+            for v in range(c):
+                value = ((u - (r / 2)) ** 2 + (v - (c / 2)) ** 2) ** (1 / 2)
+                mask[u, v] = 1 / (math.exp(value ** 2 / (2 * (cutoff ** 2))))
         
-        return 0
+        return mask
 
     def get_gaussian_high_pass_filter(self, shape, cutoff):
         """Computes a gaussian high pass mask
@@ -103,9 +131,10 @@ class Filtering:
         returns a gaussian high pass mask"""
 
         #Hint: May be one can use the low pass filter function to get a high pass mask
-
+        gl_mask = self.get_gaussian_low_pass_filter(shape, cutoff)
+        mask = 1 - gl_mask
         
-        return 0
+        return mask
 
     def post_process_image(self, image):
         """Post process the image to create a full contrast stretch of the image
@@ -144,11 +173,11 @@ class Filtering:
         k = input.shape
         img_fft = np.fft.fft2(input)
         #print(img_fft)
-        shift = np.fft.fftshift(img_fft)
+        self.shift = np.fft.fftshift(img_fft)
         #print(shift)
         magnitude = np.zeros((k[0], k[1]),dtype = np.float)
         dft_log = np.zeros((k[0], k[1]),dtype = np.uint8)
-        magnitude = abs(shift)
+        magnitude = abs(self.shift)
         #print(magnitude)
         dft_log = np.log(1+magnitude)
         coeff = (255) / (dft_log.max() - (dft_log.min()))
@@ -157,13 +186,40 @@ class Filtering:
         cont_stret = coeff * coeff1
         #print(cont_stret)
         plt.imshow(cont_stret,cmap='gray')
-        #plt.imshow(dft_log,cmap="gray")
+        plt.show()
+        if (self.filter == self.get_ideal_low_pass_filter):
+            mask = self.get_ideal_low_pass_filter(self.shift.shape, self.cutoff)
+        elif (self.filter == self.get_ideal_high_pass_filter):
+            mask = self.get_ideal_high_pass_filter(self.shift.shape, self.cutoff)
+        elif (self.filter == self.get_butterworth_low_pass_filter):
+            mask = self.get_butterworth_low_pass_filter(self.shift.shape, self.cutoff, self.order)
+        elif (self.filter == self.get_butterworth_high_pass_filter):
+            mask = self.get_butterworth_high_pass_filter(self.shift.shape, self.cutoff, self.order)
+        elif (self.filter == self.get_gaussian_low_pass_filter):
+            mask = self.get_gaussian_low_pass_filter(self.shift.shape, self.cutoff)
+        elif (self.filter == self.get_gaussian_high_pass_filter):
+            mask = self.get_gaussian_high_pass_filter(self.shift.shape, self.cutoff)
+        else:
+            print("Give a valid filter")
+        mask_shift = mask*self.shift
+        msize = mask_shift.shape
+        mask_abs = np.zeros((msize[0], msize[1]), np.uint8)
+        mask_abs = np.log(1 + abs(mask_shift))
+        maskcoeff = (255) / (mask_abs.max() - (mask_abs.min()))
+        maskcoeff1 = mask_abs - (mask_abs.min())
+        mask_strech = maskcoeff * maskcoeff1
+        plt.imshow(mask_strech, cmap="gray")
+        plt.show()
+        mask_inverse = np.zeros((msize[0], msize[1]), dtype=np.uint8)
+        mask_inverse = np.fft.ifft2(np.fft.ifftshift(mask_shift))
+        mask_invabs = np.zeros((msize[0], msize[1]), dtype=np.uint8)
+        mask_invabs = np.log(1 + abs(mask_inverse))
+        #print(mask_invabs)
+        maskinv_coeff = (255) / (mask_invabs.max() - mask_invabs.min())
+        maskinv_coeff1 = mask_invabs - (mask_invabs.min())
+        mask_invstrech =  maskinv_coeff * maskinv_coeff1
+        #print(mask_invstrech)
+        plt.imshow(mask_invstrech, cmap="gray")
         plt.show()
 
-
-
-
-
-
-
-        return [self.image, self.image, self.image]
+        return [cont_stret, mask_strech, mask_invstrech]
