@@ -59,6 +59,7 @@ class DFT:
                         # medium = medium + matrix[k,l] * (cosval - (1j*sinval))
                         outp = outp + (matrix[k, l] * (cosval + (1j * sinval)))
                         output[u, v] = outp
+        #print(output)
         #print("hello",np.fft.ifft2(matrix))
 
         return output

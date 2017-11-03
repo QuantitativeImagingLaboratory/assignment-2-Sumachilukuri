@@ -99,9 +99,22 @@ class Filtering:
         returns a butterworth high pass mask"""
 
         #Hint: May be one can use the low pass filter function to get a high pass mask
-        bl_mask = self.get_ideal_low_pass_filter(shape, cutoff)
-        mask = 1 - bl_mask
-        
+        #bl_mask = self.get_ideal_low_pass_filter(shape, cutoff)
+        #mask = 1 - bl_mask
+        c = shape[1]
+        r = shape[0]
+        n = 2 * self.order
+        # print(n)
+        mask = np.zeros((r, c), dtype=float)
+        for u in range(r):
+            for v in range(c):
+                value = ((u - (r / 2)) ** 2 + (v - (c / 2)) ** 2) ** (1 / 2)
+                try:
+                 mask[u, v] = 1.0 / (1 + ((cutoff / value) ** (n)))
+                except ZeroDivisionError:
+                 mask[u,v] = 0
+
+
         return mask
 
     def get_gaussian_low_pass_filter(self, shape, cutoff):
@@ -190,8 +203,8 @@ class Filtering:
         #print(coeff1)
         cont_stret = coeff * coeff1
         #print(cont_stret)
-        #plt.imshow(cont_stret,cmap='gray')
-        #plt.show()
+        plt.imshow(cont_stret,cmap='gray')
+        plt.show()
         if (self.filter == self.get_ideal_low_pass_filter):
             mask = self.get_ideal_low_pass_filter(self.shift.shape, self.cutoff)
         elif (self.filter == self.get_ideal_high_pass_filter):
@@ -215,8 +228,8 @@ class Filtering:
         maskcoeff = (255) / (mask_abs.max() - mask_abs.min())
         maskcoeff1 = mask_abs - (mask_abs.min())
         mask_strech = maskcoeff * maskcoeff1
-        #plt.imshow(mask_strech, cmap="gray")
-        #plt.show()
+        plt.imshow(mask_strech, cmap="gray")
+        plt.show()
         #mask_inverse = np.zeros((msize[0], msize[1]), dtype=np.complex)
         mask_inverse = np.fft.ifft2(np.fft.ifftshift(mask_shift))
 
@@ -231,7 +244,7 @@ class Filtering:
         mask_invstrech = maskinv_coeff * maskinv_coeff1
         #mask_invstrech1 = mask_invstrech
         #print(mask_invstrech)
-        #plt.imshow(mask_invstrech, cmap="gray")
-        #plt.show()
+        plt.imshow(mask_invstrech, cmap="gray")
+        plt.show()
 
         return [cont_stret, mask_strech, mask_invstrech]
