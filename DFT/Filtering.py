@@ -99,20 +99,8 @@ class Filtering:
         returns a butterworth high pass mask"""
 
         #Hint: May be one can use the low pass filter function to get a high pass mask
-        #bl_mask = self.get_ideal_low_pass_filter(shape, cutoff)
-        #mask = 1 - bl_mask
-        c = shape[1]
-        r = shape[0]
-        n = 2 * self.order
-        # print(n)
-        mask = np.zeros((r, c), dtype=float)
-        for u in range(r):
-            for v in range(c):
-                value = ((u - (r / 2)) ** 2 + (v - (c / 2)) ** 2) ** (1 / 2)
-                try:
-                 mask[u, v] = 1.0 / (1 + ((cutoff / value) ** (n)))
-                except ZeroDivisionError:
-                 mask[u,v] = 0
+        bl_mask = self.get_ideal_low_pass_filter(shape, cutoff)
+        mask = 1 - bl_mask
 
 
         return mask
